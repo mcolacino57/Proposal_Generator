@@ -116,7 +116,6 @@ function getJRecs(tableNameS, searchS) {
     default:
       break;
   }
-  var API_KEY = 'keyHL1EsFNIXIn9oC';
   var root = 'https://api.airtable.com/v0';
   var baseId = 'appK6lLzo28seB5uR';
   var tableName = encodeURIComponent(tableNameS);
