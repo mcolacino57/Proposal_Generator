@@ -117,6 +117,8 @@ function getJRecs(tableNameS, searchS) {
       break;
   }
   var root = 'https://api.airtable.com/v0';
+// NEED API KEY HERE FOR THIS TO WORK WITH AIRTABLE
+// HOWEVER AT IS DEPRECATED
   var baseId = 'appK6lLzo28seB5uR';
   var tableName = encodeURIComponent(tableNameS);
   var filter = "?filterByFormula=%7B" + fieldS + "%7D%3D" + "'" + searchS + "'";
