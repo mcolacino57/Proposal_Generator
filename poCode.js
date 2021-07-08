@@ -6,7 +6,7 @@ const nowS = Utilities.formatDate(new Date(), "GMT-4", "yyyy-MM-dd HH:MM:ss");
 const userEmail = Session.getActiveUser().getEmail();
 const ssLogID = '1DfcXzFsXksQVe_FkXbOnB4d56F5xFLhyBtGMTw2XTws';
 Logger = BetterLog.useSpreadsheet(ssLogID);
-
+// Made small change to test
 function onSubmit() {
   var retS = evalPOResponses();
 }
