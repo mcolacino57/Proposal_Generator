@@ -8,19 +8,18 @@ const ssLogID = '10k-ZlgLUsli6xKdl_vU5ldqSBK-693PR0WrDNGvIDe0';  //See Roam ((Mf
 Logger = BetterLog.useSpreadsheet(ssLogID);
 
 function onSubmit() {
-  var retS = evalPOResponses();
+  var retS = evalPSResponses();
 }
 
 /**
- * Purpose: Evaluate responses to this form and write records to prop_detail table
- * Calls evalOE, evalRET, evalElec functions
+ * Purpose: Evaluate responses to this form and write records to proposal
  *
  * @return {String} retS - Success
  */
-const logEvalPOResponses = true;
-function evalPOResponses() {
-  const fS = "evalResponses";
-  const pQS = "Proposal to be used:"; // proposal question
+const logEvalPSResponses = true;
+function evalPSResponses() {
+  const fS = "evalPSResponses";
+  const pQS = "Proposal Name?"; // proposal question
   var propS;
   try {
     var dbInst = new databaseC("applesmysql");
@@ -30,67 +29,58 @@ function evalPOResponses() {
     // get proposal name
     var propO = respA.find((responseObj) => responseObj.question === pQS);
     if (!propO) {
-      propS = "No proposal in form";
-      throw new Error('missing proposal');
+      propS = "No proposal name in form";
+      throw new Error('missing proposal name');
     }
     else { propS = propO.answer; }
-    //eval operating expenses
-    //var retS = evalOE(propS, dbInst, respA);
-    //retS = evalRET(propS, dbInst, respA);
-    retS = evalPO(propS, dbInst, respA);
-    // retS = evalPremises(propS,dbInst,respA);
+    retS = evalPS(propS, dbInst, respA);
   } catch (e) {
-    logEvalPOResponses ? Logger.log(`In ${fS}: ${e}`) : false;
+    logEvalPSResponses ? Logger.log(`In ${fS}: ${e}`) : false;
     return "Problem"
   }
   return "Success"
 }
 
 /**
- * Purpose: Evaluate proposal overview inputs
+ * Purpose: Evaluate proposal creation inputs
  *
  * @param  {string} propS - proposal name string
  * @param  {object} dbInst - instance of databaseC
  * @param {object[]} respA - response array
  * @return {string} retS - Success or Problem
  */
-const logEvalPO = true;
-function evalPO(propS, dbInst, respA) {
-  var fS = 'evalPO'; // start here
+const logEvalPS = true;
+function evalPS(propS, dbInst, respA) {
+  var fS = 'evalPS'; // start here
   const qA = [
     "What is the tenant name?",
-    "Landlord Broker Name?",
-    "What will the Premises be used for?",
-    "Lease Commencement Date?",
-    "Lease Term in Months?",
-    "Period of Early Access?",
-    "How many months of rent will be provided as security?"];
+    "Space?"];
 
-  var poO, poAnsS, poQuestS, poS;
+  var psO, tS, spaceS;
   try {
-    // loop over the question array
-    for (var i in qA) {
-      poQuestS = qA[i];
-      // for each question try to get an answer or assign default string 
-      var poO = respA.find((responseObj) => responseObj.question === poQuestS);
-      poO == undefined ? poS = `${poQuestS} missing in form` : poS = poO.answer;
-      var poAnsS = poS || "Proposal answer not found in response array";
-      var poClauseKey = questionToClauseKey(dbInst, poQuestS);
-      if (poClauseKey == undefined) { throw new Error(`no ClauseKey`) }
-      var poRec = {
-        'ProposalName': propS,
-        'ProposalClauseKey': poClauseKey,
-        'ProposalQuestion': poQuestS,
-        'ProposalAnswer': poAnsS,
-        'CreatedBy': userEmail,
-        'CreatedWhen': todayS,
-        'ModifiedWhen': nowS,
-        'ModifiedBy': userEmail
-      }
-      var retS = writePropDetail(dbInst, poRec);
+    // First question: tenant name
+    var psO = respA.find((responseObj) => responseObj.question === "What is the tenant name?");
+    psO == undefined ? tS = `Tenant missing in form` : tS = psO.answer;
+    // Second question: space identifying string, which needs to be parsed 
+    // and the the space_identiy pulled from the sub_spaces view
+    var psO = respA.find((responseObj) => responseObj.question === "Space?");
+    psO == undefined ? spaceS = `Space missing in form` : spaceS = psO.answer;
+
+
+    var psRec = {
+      'ProposalName': propS,
+      'ProposalClauseKey': psClauseKey,
+      'ProposalQuestion': psQuestS,
+      'ProposalAnswer': psAnsS,
+      'CreatedBy': userEmail,
+      'CreatedWhen': todayS,
+      'ModifiedWhen': nowS,
+      'ModifiedBy': userEmail
     }
+    var retS = writePropDetail(dbInst, psRec);
+
   } catch (e) {
-    logEvalPO ? Logger.log(`In ${fS}: ${e}`) : false;
+    logEvalPS ? Logger.log(`In ${fS}: ${e}`) : false;
     return "Problem"
   }
   return "Success"

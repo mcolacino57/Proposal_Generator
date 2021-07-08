@@ -1,7 +1,7 @@
 /* When the form changes, you need to: 
   update populateForm with the new q/a's
 
-  CONTENTS--DEPRECATED 
+  CONTENTS
   populateForm()
   popFormText(qS, aS)
   popFormMulti(qS, aS)
@@ -25,7 +25,6 @@ const CREATE_DOC = false;
  */
 
 // update this when form is changed
-// DEPRECATED
 
 /* populateForm takes a set of pre-defined responses and creates a form response with them. Uses four helper functions to deal with TEXT, MULTIPLE_CHOICE, DATE, and CHECK_BOX */
 var newResponse, items;
@@ -56,39 +55,30 @@ function populateForm() {
 }
 
 /* Helper functions for populateForm */
-// DEPRECATED
+
 function popFormText_(qS, aS) {
   var i = returnItemNumber_(items, qS);
   var textItem = items[i].asTextItem();
   itemResponse = textItem.createResponse(aS);
   newResponse.withItemResponse(itemResponse);
 }
-// DEPRECATED
 function popFormMulti_(qS, aS) {
   var i = returnItemNumber_(items, qS);
   var multiItem = items[i].asMultipleChoiceItem();
   itemResponse = multiItem.createResponse(aS);
   newResponse.withItemResponse(itemResponse);
 }
-// DEPRECATED
 function popFormDate_(qS, aD) {
   var i = returnItemNumber_(items, qS);
   var dateItem = items[i].asDateItem();
   itemResponse = dateItem.createResponse(aD);
   newResponse.withItemResponse(itemResponse);
 }
-// DEPRECATED
 function popFormCheck_(qS, aL) {
   var i = returnItemNumber_(items, qS);
   var checkItem = items[i].asCheckboxItem();
   itemResponse = checkItem.createResponse(aL);
   newResponse.withItemResponse(itemResponse);
-}
-// DEPRECATED
-function testResponseByItemID() {
-  var unr = parkingObj['UnreservedNumber'];
-  var retS = responseByItemID(parkform, unr);
-  console.log(retS)
 }
 
 /* Used by all four helper functions above to index into items with a particular question; returns the index or -1 if not found */
@@ -227,44 +217,38 @@ function responseByItemID(form, itemtosearch) {
 
 }
 
+function testResponseByItemID() {
+  var unr = parkingObj['UnreservedNumber'];
+  var retS = responseByItemID(parkform, unr);
+  console.log(retS)
+}
 
+/*************************DROPDOWN INITIALIZATION******* */
+/* used below by testPrintTitlesAndIDs() */
+const proposalS = "Proposal to be used:"
 
-/******************* CODE CURRENT 210708**************************
- * fillProposalDropdown
- * 
- */
+const oeFormID = '1eQEOsPOHrrQuHMRKrTghjDggS7wrTWDr4L-YIQntBsk'; // Operating Expenses
+const tiFormID = '1sfdyrkMJ1b8oXjetqSjvsZSdcogEfDDKR3J0h8KWh9M'; // Tenant Improvements
+const poFormID = '1LcRF_WPTZ3bNudX6h_rdTzRARMRl7Rajf4gUR6JKPzA'; // Proposal Overview
+const psFormID = '1C5vDglBZYVWhuEl_1Am6lGXeAOLyPe8SYrNk371anDQ'; // Proposal Start
+
+const tiDropdownID = '1210099673';
+const oeDropdownID = '332505004';
+const poDropdownID = '357079143';
+const psDropdownID = '292125967'; // used in fillSpacesDropdown below
 /**
  * Purpose: take an array of strings and populate a dropdown in formID
  *
  * @param  {string} formID- form ID
- * @param  {string[]} choices - array of strings
- * @return {string} retS - return value
+ * @param  {string} dropDownID - id for the dropdown 
+ * @return {string} retS - return "Success" or false
  */
-
-const oeFormID = '1eQEOsPOHrrQuHMRKrTghjDggS7wrTWDr4L-YIQntBsk';  // Operating Expenses
-const tiFormID = '1sfdyrkMJ1b8oXjetqSjvsZSdcogEfDDKR3J0h8KWh9M';  // Tenant Improvments
-const poFormID = '1LcRF_WPTZ3bNudX6h_rdTzRARMRl7Rajf4gUR6JKPzA';  // Proposal Oveview
-const psFormID = '1ZVxqRKokgqTTfloI_zFBi59Sv7Q2NLDOB6fmoAcLAcE'; // Proposal Start
-const proposalS = "Proposal to be used:"
-const tiDropdownID = '1210099673';
-const oeDropdownID = '332505004';
-const poDropdownID = '357079143';
-const psDropdownID = '1120136627';
-
-
-/**
- * Purpose: Take a form and dropdown ID and put all the proposals for the current user into it
- *
- * @param  {String} param_name - param
- * @param  {itemReponse[]} param_name - an array of responses 
- * @return {String} retS - return value
- */
-
 function fillProposalDropdown_(formID, dropDownID) {
   const fS = "fillProposalDropdown_";
+  var retS;
   try {
     // get proposal array from db
-    var propA = getProposalNamesAndIDs("mcolacino@squarefoot.com");
+    var propA = getProposalNamesAndIDs("mcolacino@squarefoot.com");  // in gcloudSQL
     var ddvaluesA = propA.map(pr => {
       return pr[0];
     })
@@ -274,7 +258,7 @@ function fillProposalDropdown_(formID, dropDownID) {
     var itemT = dd.getType();
     if (dd.getType() != FormApp.ItemType.LIST) {
       throw new Error(`Item: ${dropDownID} is not a list!`);
-      return -1
+      return false
     }
     else {
       dd.asListItem().setChoiceValues(ddvaluesA);
@@ -282,13 +266,54 @@ function fillProposalDropdown_(formID, dropDownID) {
 
   } catch (err) {
     console.log(`In ${fS}: ${err}`)
-    return -1
+    return false
   }
-}
-function runFillProposalDropDown() {
-  var retS = fillProposalDropdown_(psFormID, psDropdownID);
+  retS = "Success";
+  return retS
 }
 
+function runFillProposalDropDown() {
+  var retS = fillProposalDropdown_(poFormID, poDropdownID);
+}
+
+/**
+ * Purpose: Populate the spaces dropdown in the Proposal Start project
+ *
+ * @param  {string} formID- form ID
+ * @param  {string} dropDownID - id string for dropdown
+ * @return {string} retS - return "Success" or false
+ */
+function fillSpacesDropdown_(formID, dropDownID) {
+  const fS = "fillProposalDropdown_";
+  var retS;
+  try {
+    // get proposal array from db
+    var asfsfA = getAddressSuiteFloorSF("mcolacino@squarefoot.com");  // gcloudSQL
+    var ddvaluesA = asfsfA.map(pr => {
+      return pr.sdesc;
+    })
+      // get the dropdown from the form
+      var dd = FormApp.openById(formID).getItemById(dropDownID);
+      var itemT = dd.getType();
+      if (dd.getType() != FormApp.ItemType.LIST) {
+        throw new Error(`Item: ${dropDownID} is not a list!`);
+        return false
+      }
+      else {
+        dd.asListItem().setChoiceValues(ddvaluesA);
+        Logger.log(`Updated ${formID} with spaces`);
+      }
+  } catch (err) {
+    console.log(`In ${fS}: ${err}`)
+    return false
+  }
+  retS = "Success";
+  return retS
+}
+
+function testFillSpacesDropdown() {
+  var retS = fillSpacesDropdown_(psFormID, psDropdownID);
+}
 
 function displayTitlesAndIDS_(formID) {
   var form = FormApp.openById(formID);
@@ -359,14 +384,6 @@ function crFormKeyArray() {
   // console.log(qcrA);
   return qcrA
 }
-
-/**
- * Purpose: Get qcrRec from crFormKeyArray and write the questions, 
- * clausekeys, and replstructs to the database with writeCk_question
- *
- *
- * @return {String} retS - return Success or false
- */
 
 function writeAllQuestionsKeys() {
   var fS = 'writeAllQuestionsKeys';
