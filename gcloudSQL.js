@@ -343,12 +343,11 @@ function getAddressSuiteFloorSF(userS = "mcolacino@squarefoot.com") {
   var spaceA = ret.map( record => {
     record.fields.suite ?  sS =  "/ S: " + record.fields.suite : sS = "";
     record.fields.floor ?  fS =  "/ F: " + record.fields.floor : fS = "";
-    record.fields.squarefeet ? ssS = "/SF: "+ new Intl.NumberFormat().format(record.fields.squarefeet) : ssS = "";
+    record.fields.squarefeet ? ssS = "/ SF: "+ new Intl.NumberFormat().format(record.fields.squarefeet) : ssS = "";
     return {
       sdesc : `${record.fields.address} ${sS} ${fS} ${ssS}`,
         sidentity : record.fields.spaceidentity
     }
-
   })
   logGetAddressSuitFloorSF ? console.log(spaceA) : true;
   return spaceA
