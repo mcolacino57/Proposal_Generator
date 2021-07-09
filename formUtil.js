@@ -285,7 +285,7 @@ function runFillProposalDropDown() {
  */
 
 function fillSpacesDropdown_(formID, dropDownID) {
-  const fS = "fillProposalDropdown_";
+  const fS = "fillSpacesDropdown_";
   var retS;
   try {
     // get proposal array from db
