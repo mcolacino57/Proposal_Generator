@@ -6,7 +6,7 @@ const nowS = Utilities.formatDate(new Date(), "GMT-4", "yyyy-MM-dd HH:MM:ss");
 const userEmail = Session.getActiveUser().getEmail();
 const ssLogID = '1DfcXzFsXksQVe_FkXbOnB4d56F5xFLhyBtGMTw2XTws';
 Logger = BetterLog.useSpreadsheet(ssLogID);
-
+// Made small change to test
 function onSubmit() {
   var retS = evalPOResponses();
 }
@@ -34,11 +34,7 @@ function evalPOResponses() {
       throw new Error('missing proposal');
     }
     else { propS = propO.answer; }
-    //eval operating expenses
-    //var retS = evalOE(propS, dbInst, respA);
-    //retS = evalRET(propS, dbInst, respA);
     retS = evalPO(propS, dbInst, respA);
-    // retS = evalPremises(propS,dbInst,respA);
   } catch (e) {
     logEvalPOResponses ? Logger.log(`In ${fS}: ${e}`) : false;
     return "Problem"
@@ -58,12 +54,11 @@ const logEvalPO = true;
 function evalPO(propS, dbInst, respA) {
   var fS = 'evalPO'; // start here
   const qA = [
-    "What is the tenant name?",
     "Landlord Broker Name?",
     "What will the Premises be used for?",
     "Lease Commencement Date?",
     "Lease Term in Months?",
-    "Period of Early Access?",
+    "Period of Early Access in Months?",
     "How many months of rent will be provided as security?"];
 
   var poO, poAnsS, poQuestS, poS;
@@ -87,7 +82,7 @@ function evalPO(propS, dbInst, respA) {
         'ModifiedWhen': nowS,
         'ModifiedBy': userEmail
       }
-      var retS = writePropDetail(dbInst, poRec);
+      var retS = gcloudSQL.writePropDetail(dbInst, poRec);
     }
   } catch (e) {
     logEvalPO ? Logger.log(`In ${fS}: ${e}`) : false;
