@@ -336,23 +336,48 @@ function getProposalNamesAndIDs(userS = "mcolacino@squarefoot.com") {
 const logGetAddressSuitFloorSF = false;
 function getAddressSuiteFloorSF(userS = "mcolacino@squarefoot.com") {
   var dbInst = new databaseC("applesmysql");
-  var fS, sS,ssS;
+  var fS, sS, ssS;
   var tableNameS = "sub_spaces"; // this is actually a view but should work the same
 
   var ret = readAllFromTable(dbInst, tableNameS);
-  var spaceA = ret.map( record => {
-    record.fields.suite ?  sS =  "/ S: " + record.fields.suite : sS = "";
-    record.fields.floor ?  fS =  "/ F: " + record.fields.floor : fS = "";
-    record.fields.squarefeet ? ssS = "/ SF: "+ new Intl.NumberFormat().format(record.fields.squarefeet) : ssS = "";
+  var spaceA = ret.map(record => {
+    record.fields.suite ? sS = "/ S: " + record.fields.suite : sS = "";
+    record.fields.floor ? fS = "/ F: " + record.fields.floor : fS = "";
+    record.fields.squarefeet ? ssS = "/ SF: " + new Intl.NumberFormat().format(record.fields.squarefeet) : ssS = "";
     return {
-      sdesc : `${record.fields.address} ${sS} ${fS} ${ssS}`,
-        sidentity : record.fields.spaceidentity
+      sdesc: `${record.fields.address} ${sS} ${fS} ${ssS}`,
+      sidentity: record.fields.spaceidentity
     }
   })
   logGetAddressSuitFloorSF ? console.log(spaceA) : true;
   return spaceA
+}
+
+/**
+ * Purpose: Join spaces and buildings (view?) to get SpaceID / Floor / Suite / Square Footage
+ *
+ * @param  {String} param_name - param
+ * @param  {itemReponse[]} param_name - an array of responses 
+ * @return {String} retS - return value
+ */
+const logGetSpaceDisplay = false;
+function getSpaceDisplay(userS = "mcolacino@squarefoot.com") {
+  var dbInst = new databaseC("applesmysql");
+  var fS, sS, ssS;
+  var tableNameS = "display_spaces"; // this is actually a view but should work the same
+
+  var ret = readAllFromTable(dbInst, tableNameS);
+  var spaceA = ret.map(record => {
+    return {
+      sdesc: record.fields.displayspace,
+      sidentity: record.fields.spaceidentity  // note that somewhere along the way underscore gets stripped
+    }
+  })
+  logGetSpaceDisplay ? console.log(spaceA) : true;
+  return spaceA
 
 }
+
 
 /** 
   * Purpose: Get data from the proposal table

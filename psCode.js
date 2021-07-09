@@ -24,7 +24,8 @@ function evalPSResponses() {
   try {
     var dbInst = new databaseC("applesmysql");
     // get responses into an array of objects of the form [{"question": qS, "answer": aS},...]
-    var f = FormApp.getActiveForm();
+    //var f = FormApp.getActiveForm();
+    var f = FormApp.openById(psFormID);
     var respA = crFormResponseArray(f);
     // get proposal name
     var propO = respA.find((responseObj) => responseObj.question === pQS);
@@ -65,19 +66,20 @@ function evalPS(propS, dbInst, respA) {
     // and the the space_identiy pulled from the sub_spaces view
     var psO = respA.find((responseObj) => responseObj.question === "Space?");
     psO == undefined ? spaceS = `Space missing in form` : spaceS = psO.answer;
+    var space_identity = getIDfromSpaceDisplay(dbInst,spaceS);
 
 
     var psRec = {
       'ProposalName': propS,
-      'ProposalClauseKey': psClauseKey,
-      'ProposalQuestion': psQuestS,
-      'ProposalAnswer': psAnsS,
+      'space_identity': space_identity,
+      'TenantName': tS,
+      'ProposalSize': "S",
       'CreatedBy': userEmail,
       'CreatedWhen': todayS,
       'ModifiedWhen': nowS,
       'ModifiedBy': userEmail
     }
-    var retS = writePropDetail(dbInst, psRec);
+    var retS = writeProposal(dbInst, psRec);
 
   } catch (e) {
     logEvalPS ? Logger.log(`In ${fS}: ${e}`) : false;
@@ -85,6 +87,33 @@ function evalPS(propS, dbInst, respA) {
   }
   return "Success"
 }
+
+/**
+ * Purpose: Takes the space display in form: <Address> / S: <Suite> / F: <Floor> 
+ *
+ * @param  {Object} dbInst - database class instance
+ * @param  {String} spaceS - space display string
+ * @return {String} spaceID - return value
+ */
+function getIDfromSpaceDisplay(dbInst,spaceS){
+  var fS = "getIDfromSpaceDisplay";
+  try {
+    var qryS = `SELECT space_identity FROM display_spaces WHERE display_space = "${spaceS}";`;
+    var locConn = dbInst.getconn(); // get connection from the instance
+    var stmt = locConn.createStatement();
+    var results = stmt.executeQuery(qryS);
+    console.log(qryS);
+    //console.log(results.getRowId(1));
+    while (results.next()) {
+      var retS = results.getString("space_identity");
+    }
+  } catch (err) {
+    console.log(`In ${fS}: ${e}`);
+  }
+  return retS
+}
+
+
 
 /*Section*/
 /********************UTILITIES ******************** */
@@ -120,18 +149,10 @@ function testCrFormResponseArray() {
   console.log(resp)
 }
 
-function testGetProposalData() {
-  var pd = getProposalData("mcolacino@squarefoot.com");
 
-}
 
-function testGetNamedProposalData() {
-  var ps = 'SoftGuy 222 West 42nd 3rd Floor';
-  var pO = getNamedProposalData(ps);
-  console.log(pO)
-}
 
 function testEvalResponses() {
-  var ret = evalPOResponses();
+  var ret = evalPSResponses();
 
 }

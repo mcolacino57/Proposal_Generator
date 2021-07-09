@@ -230,12 +230,12 @@ const proposalS = "Proposal to be used:"
 const oeFormID = '1eQEOsPOHrrQuHMRKrTghjDggS7wrTWDr4L-YIQntBsk'; // Operating Expenses
 const tiFormID = '1sfdyrkMJ1b8oXjetqSjvsZSdcogEfDDKR3J0h8KWh9M'; // Tenant Improvements
 const poFormID = '1LcRF_WPTZ3bNudX6h_rdTzRARMRl7Rajf4gUR6JKPzA'; // Proposal Overview
-const psFormID = '1C5vDglBZYVWhuEl_1Am6lGXeAOLyPe8SYrNk371anDQ'; // Proposal Start
+const psFormID = '1ZVxqRKokgqTTfloI_zFBi59Sv7Q2NLDOB6fmoAcLAcE'; // Proposal Start
 
 const tiDropdownID = '1210099673';
 const oeDropdownID = '332505004';
 const poDropdownID = '357079143';
-const psDropdownID = '292125967'; // used in fillSpacesDropdown below
+const psDropdownID = '1120136627'; // used in fillSpacesDropdown below
 /**
  * Purpose: take an array of strings and populate a dropdown in formID
  *
@@ -283,12 +283,13 @@ function runFillProposalDropDown() {
  * @param  {string} dropDownID - id string for dropdown
  * @return {string} retS - return "Success" or false
  */
+
 function fillSpacesDropdown_(formID, dropDownID) {
   const fS = "fillProposalDropdown_";
   var retS;
   try {
     // get proposal array from db
-    var asfsfA = getAddressSuiteFloorSF("mcolacino@squarefoot.com");  // gcloudSQL
+    var asfsfA = getSpaceDisplay("mcolacino@squarefoot.com");  // gcloudSQL modified to this 210708
     var ddvaluesA = asfsfA.map(pr => {
       return pr.sdesc;
     })
