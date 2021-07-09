@@ -457,7 +457,7 @@ CREATE TABLE `prop_detail` (
   `ModifiedWhen` 		  DATETIME DEFAULT NULL, 
 );
 */
-const logWritePropDetail = true;
+const logWritePropDetail = false;
 function writePropDetail(dbInst, record) {
   var fS = 'writePropDetail';
   var colS = 'ProposalName,ProposalClauseKey,ProposalQuestion,ProposalAnswer,CreatedBy,CreatedWhen,ModifiedWhen,ModifiedBy';
@@ -480,6 +480,32 @@ function writePropDetail(dbInst, record) {
   return "Success"
 }
 
+const logWriteProposal = true;
+function writeProposal(dbInst, record) {
+  var fS = 'writeProposal';
+  var colS = "ProposalID,ProposalName,space_identity,TenantName,ProposalSize,CreatedBy,CreatedWhen,ModifiedWhen,ModifiedBy";
+  var valA = Object.values(record);
+  var recordS = "";
+  for (i = 0; i < valA.length; i++) {
+    if (i < (valA.length - 1)) {
+      recordS = recordS + "'" + valA[i] + "',";
+    } else {
+      recordS = recordS +  "'" + valA[i] + "'";
+    }
+  }
+recordS = "UUID(),"+ recordS  ;
+try {
+  var qryS = `INSERT INTO proposals (${colS}) VALUES(${recordS});`;
+  console.log(qryS);
+  var locConn = dbInst.getconn(); // get connection from the instance
+  var stmt = locConn.prepareStatement(qryS);
+  stmt.execute();
+} catch (e) {
+  logWriteProposal ? Logger.log(`In ${fS}: ${e}`) : true;
+  return "Problem"
+}
+return "Success"
+}
 
 /*****************UTILITIES********************* */
 
