@@ -412,3 +412,30 @@ function writeAllQuestionsKeys() {
   return "Success"
 }
 
+const logWriteCk_Question = true;
+function writeCk_Question(dbInst,qcrRec){
+  var fS = 'writeCk_Question';
+
+  var colS = "Question,ClauseKey,ReplStruct,CreatedBy,CreatedWhen,ModifiedWhen,LastModifiedBy";
+  var valA = Object.values(qcrRec);
+  var recordS = "";
+  for (i = 0; i < valA.length; i++) {
+    if (i < (valA.length - 1)) {
+      recordS = recordS + "'" + valA[i] + "',";
+    } else {
+      recordS = recordS +  "'" + valA[i] + "'";
+    }
+  }
+try {
+  var qryS = `INSERT INTO ck_question (${colS}) VALUES(${recordS});`;
+  console.log(qryS);
+  var locConn = dbInst.getconn(); // get connection from the instance
+  var stmt = locConn.prepareStatement(qryS);
+  stmt.execute();
+} catch (e) {
+  logWriteCk_Question ? Logger.log(`In ${fS}: ${e}`) : true;
+  return "Problem"
+}
+return "Success"
+}
+
