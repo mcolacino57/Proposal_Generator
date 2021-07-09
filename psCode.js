@@ -1,10 +1,10 @@
 // To get:
-// TenantName, LandlordBroker, Use, LeaseCommencement, Lease Term, Early Access, Security
-// PREMISES: RSF, Floor, Suite
+// Proposal Name, TenantName, and Space
+// Constructs display_space from: address, Floor, Suite, RSF
 const todayS = Utilities.formatDate(new Date(), "GMT-4", "yyyy-MM-dd");
 const nowS = Utilities.formatDate(new Date(), "GMT-4", "yyyy-MM-dd HH:MM:ss");
 const userEmail = Session.getActiveUser().getEmail();
-const ssLogID = '10k-ZlgLUsli6xKdl_vU5ldqSBK-693PR0WrDNGvIDe0';  //See Roam ((MfNjAFH1f))
+const ssLogID = '10k-ZlgLUsli6xKdl_vU5ldqSBK-693PR0WrDNGvIDe0';  //Logging spreadsheet 
 Logger = BetterLog.useSpreadsheet(ssLogID);
 
 function onSubmit() {
@@ -24,7 +24,6 @@ function evalPSResponses() {
   try {
     var dbInst = new databaseC("applesmysql");
     // get responses into an array of objects of the form [{"question": qS, "answer": aS},...]
-    //var f = FormApp.getActiveForm();
     var f = FormApp.openById(psFormID);
     var respA = crFormResponseArray(f);
     // get proposal name
@@ -37,26 +36,22 @@ function evalPSResponses() {
     retS = evalPS(propS, dbInst, respA);
   } catch (e) {
     logEvalPSResponses ? Logger.log(`In ${fS}: ${e}`) : false;
-    return "Problem"
+    retS = "Problem";
   }
-  return "Success"
+  return retS
 }
 
 /**
  * Purpose: Evaluate proposal creation inputs
  *
- * @param  {string} propS - proposal name string
- * @param  {object} dbInst - instance of databaseC
- * @param {object[]} respA - response array
- * @return {string} retS - Success or Problem
+ * @param  {String} propS - proposal name string
+ * @param  {Object} dbInst - instance of databaseC
+ * @param {Object[]} respA - response array
+ * @return {String} retS - Success or Problem
  */
 const logEvalPS = true;
 function evalPS(propS, dbInst, respA) {
-  var fS = 'evalPS'; // start here
-  const qA = [
-    "What is the tenant name?",
-    "Space?"];
-
+  var fS = 'evalPS'; 
   var psO, tS, spaceS;
   try {
     // First question: tenant name
@@ -66,9 +61,7 @@ function evalPS(propS, dbInst, respA) {
     // and the the space_identiy pulled from the sub_spaces view
     var psO = respA.find((responseObj) => responseObj.question === "Space?");
     psO == undefined ? spaceS = `Space missing in form` : spaceS = psO.answer;
-    var space_identity = getIDfromSpaceDisplay(dbInst,spaceS);
-
-
+    var space_identity = getIDfromSpaceDisplay(dbInst,spaceS); // in psCode.gs
     var psRec = {
       'ProposalName': propS,
       'space_identity': space_identity,
@@ -79,7 +72,7 @@ function evalPS(propS, dbInst, respA) {
       'ModifiedWhen': nowS,
       'ModifiedBy': userEmail
     }
-    var retS = writeProposal(dbInst, psRec);
+    var retS = writeProposal(dbInst, psRec); // in gcloudSQL
 
   } catch (e) {
     logEvalPS ? Logger.log(`In ${fS}: ${e}`) : false;
@@ -89,7 +82,8 @@ function evalPS(propS, dbInst, respA) {
 }
 
 /**
- * Purpose: Takes the space display in form: <Address> / S: <Suite> / F: <Floor> 
+ * Purpose: Gets the space identity from display_spaces view, 
+ * (input param in form: <Address> / S: <Suite> / F: <Floor> / SF: <SF>)
  *
  * @param  {Object} dbInst - database class instance
  * @param  {String} spaceS - space display string
@@ -97,48 +91,21 @@ function evalPS(propS, dbInst, respA) {
  */
 function getIDfromSpaceDisplay(dbInst,spaceS){
   var fS = "getIDfromSpaceDisplay";
+  var retS="display_space not found";  // default if qry doesn't find any matches
   try {
     var qryS = `SELECT space_identity FROM display_spaces WHERE display_space = "${spaceS}";`;
     var locConn = dbInst.getconn(); // get connection from the instance
     var stmt = locConn.createStatement();
-    var results = stmt.executeQuery(qryS);
-    console.log(qryS);
-    //console.log(results.getRowId(1));
+    var results = stmt.executeQuery(qryS);  // add error handling if no results?
     while (results.next()) {
-      var retS = results.getString("space_identity");
+      retS = results.getString("space_identity");
     }
   } catch (err) {
     console.log(`In ${fS}: ${e}`);
+    retS = "Problem";
   }
   return retS
 }
-
-
-
-/*Section*/
-/********************UTILITIES ******************** */
-/**
- * Purpose: Take a question and return the corresponding ClauseKey
- *
- * @param  {object} dbInst - param
- * @return {String} ClauseKey - returned clause key
- */
-function questionToClauseKey(dbInst, qS) {
-  var fS = "questionToClauseKey";
-  try {
-    var qryS = `SELECT ClauseKey FROM ck_question WHERE Question = "${qS}";`;
-    var locConn = dbInst.getconn(); // get connection from the instance
-    var stmt = locConn.createStatement();
-    var results = stmt.executeQuery(qryS);
-    while (results.next()) {
-      var retS = results.getString("ClauseKey");
-    }
-  } catch (err) {
-    console.log(`In ${fS}: ${e}`);
-  }
-  return retS
-}
-
 
 /*Section*/
 /***************************TESTS *************************************** */
@@ -148,9 +115,6 @@ function testCrFormResponseArray() {
   var resp = crFormResponseArray(f);
   console.log(resp)
 }
-
-
-
 
 function testEvalResponses() {
   var ret = evalPSResponses();
