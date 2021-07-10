@@ -322,7 +322,7 @@ function getProposalNamesAndIDs(userS = "mcolacino@squarefoot.com") {
   var propNameIDA = ret.map(function (record) {
     return [record.fields.proposalname, record.fields.proposalid]
   })
-  console.log(propNameIDA)
+  // console.log(propNameIDA)
   return propNameIDA
 }
 
@@ -460,7 +460,7 @@ CREATE TABLE `prop_detail` (
 const logWritePropDetail = false;
 function writePropDetail(dbInst, record) {
   var fS = 'writePropDetail';
-  var colS = 'ProposalName,ProposalClauseKey,ProposalQuestion,ProposalAnswer,CreatedBy,CreatedWhen,ModifiedWhen,ModifiedBy';
+  var colS = 'ProposalID, ProposalName,ProposalClauseKey,ProposalQuestion,ProposalAnswer,CreatedBy,CreatedWhen,ModifiedWhen,ModifiedBy';
   var recordA = Object.values(record);
   var recordS = "";
   recordA.forEach((s) => { recordS = recordS + "'" + s + "'" + "," });
@@ -655,4 +655,5 @@ function camelArray(headers) {
   }
   return keys;
 }
+
 
